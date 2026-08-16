@@ -1,10 +1,11 @@
 const express = require('express');
 const { createRide, splitRideFare } = require('../controllers/rideController');
 const authMiddleware = require('../middleware/auth');
+const { apiLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
-router.post('/', authMiddleware, createRide);
-router.post('/split', splitRideFare);
+router.post('/', apiLimiter, authMiddleware, createRide);
+router.post('/split', apiLimiter, splitRideFare);
 
 module.exports = router;

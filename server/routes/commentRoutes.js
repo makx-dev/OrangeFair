@@ -1,9 +1,10 @@
 const express = require('express');
 const { createComment } = require('../controllers/commentController');
 const authMiddleware = require('../middleware/auth');
+const { apiLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
-router.post('/', authMiddleware, createComment);
+router.post('/', apiLimiter, authMiddleware, createComment);
 
 module.exports = router;
