@@ -52,6 +52,22 @@ if (mongoUri) {
   console.warn('MONGODB_URI not set. API will run without DB connection.');
 }
 
+const https = require('https');
+const RENDER_URL = 'https://the-orange-fare.onrender.com/api/health';
+
+// Ping the server every 14 minutes to prevent Render from sleeping
+setInterval(() => {
+  https.get(RENDER_URL, (res) => {
+    if (res.statusCode === 200) {
+      console.log('Self-ping successful to keep Render awake');
+    } else {
+      console.error(`Self-ping failed with status code: ${res.statusCode}`);
+    }
+  }).on('error', (err) => {
+    console.error('Self-ping error:', err.message);
+  });
+}, 14 * 60 * 1000); // 14 minutes
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
