@@ -24,4 +24,8 @@ router.post('/observations', optionalAuth, localFareController.submitObservation
 // Fetch comments for a specific route
 router.get('/comments', localFareController.getComments);
 
+// Add and delete comments
+router.post('/comments', optionalAuth, localFareController.addComment);
+router.delete('/comments/:id', optionalAuth, localFareController.deleteComment);
+
 module.exports = router;

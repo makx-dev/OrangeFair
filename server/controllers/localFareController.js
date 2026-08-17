@@ -115,3 +115,44 @@ exports.getComments = async (req, res) => {
   }
 };
 
+exports.addComment = async (req, res) => {
+  try {
+    const { routeKey, text, tag, isPrototypeData } = req.body;
+    
+    if (!routeKey || !text || !tag) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const newComment = new Comment({
+      routeKey,
+      text,
+      tag,
+      plateNumber: 'UNKNOWN', // Dummy plate number for local fare comments
+      riderId: req.user ? req.user.id : '000000000000000000000000', // Dummy user ID if not logged in
+      isPrototypeData: isPrototypeData || false
+    });
+
+    await newComment.save();
+    res.status(201).json({ message: 'Comment added', comment: newComment });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.deleteComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const comment = await Comment.findByIdAndDelete(id);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    res.json({ message: 'Comment deleted' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
