@@ -1,4 +1,5 @@
 const FareObservation = require('../models/FareObservation');
+const Comment = require('../models/Comment');
 const { getRouteKey, calculateFareStatistics, calculateConfidence } = require('../utils/fareIntelligence');
 
 // Note: Official tariff constants for Nagpur (simplified for calculation)
@@ -95,3 +96,22 @@ exports.submitObservation = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+exports.getComments = async (req, res) => {
+  try {
+    const { routeKey } = req.query;
+    if (!routeKey) {
+      return res.status(400).json({ error: 'Missing routeKey' });
+    }
+
+    const comments = await Comment.find({ routeKey })
+      .sort({ createdAt: -1 })
+      .limit(10); // Show max 10 comments
+      
+    res.json({ comments });
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+

@@ -4,8 +4,10 @@
     "search": "Search Auto",
     "logRide": "Log Ride",
     "localFare": "Local Fare",
+    "fareSplit": "Fare Split",
     "routeWatch": "Route Watch",
-    "leaderboard": "Leaderboard"
+    "leaderboard": "Leaderboard",
+    "reports": "Reports"
   },
   "home": {
     "title": "OrangeFair",

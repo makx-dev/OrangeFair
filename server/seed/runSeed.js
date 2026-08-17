@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const { seedData } = require('./prototypeData');
+const { seedLocalFareData } = require('./localFareData');
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ mongoose
     console.log('MongoDB connected for seeding prototype data...');
     try {
       await seedData();
+      await seedLocalFareData();
       console.log('Seeding complete. Exiting...');
       process.exit(0);
     } catch (error) {

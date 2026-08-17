@@ -4,8 +4,10 @@
     "search": "ऑटो खोजें",
     "logRide": "सफर दर्ज करें",
     "localFare": "स्थानीय किराया",
+    "fareSplit": "किराया बांटें",
     "routeWatch": "रूट वॉच",
-    "leaderboard": "लीडरबोर्ड"
+    "leaderboard": "लीडरबोर्ड",
+    "reports": "रिपोर्ट"
   },
   "home": {
     "title": "OrangeFair",

@@ -36,9 +36,16 @@ const FareComparisonCard = ({
         {/* Visual ribbon */}
         <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
         
-        <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wider mb-4">
-          Local Fare
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wider">
+            Local Fare
+          </h3>
+          {isSeeded && (
+            <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-1 rounded-md">
+              Prototype data
+            </span>
+          )}
+        </div>
         
         <div className="flex items-end gap-3 mb-2">
           <span className="text-4xl font-black text-primary-dark">

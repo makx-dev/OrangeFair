@@ -14,7 +14,6 @@ import LogRidePage from './pages/LogRidePage';
 import ReportsPage from './pages/ReportsPage';
 import ReportStatusPage from './pages/ReportStatusPage';
 import RouteWatchPage from './pages/RouteWatchPage';
-import LeaderboardPage from './pages/LeaderboardPage';
 import LocalFarePage from './pages/LocalFarePage';
 
 // We will add more pages later, map them to existing pages for now
@@ -58,7 +57,6 @@ export default function App() {
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/reports/:id/status" element={<ReportStatusPage />} />
         <Route path="/route-watch" element={<RouteWatchPage />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/fare-split" element={<FareSplitPage />} />
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/settings" element={<div>Settings placeholder</div>} />

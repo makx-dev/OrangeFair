@@ -7,6 +7,7 @@ const tagValues = [
   'Safe Driving',
   'Used Meter',
   'Refused Short Trip',
+  'Fair Fare'
 ];
 
 const blockedKeywords = /(idiot|moron|stupid|loser|fraud|scam|liar|cheat|fake|shame)/i;
@@ -17,9 +18,12 @@ const commentSchema = new mongoose.Schema({
   plateNumber: { type: String, required: true, uppercase: true, trim: true },
   linkedReportId: { type: mongoose.Schema.Types.ObjectId, ref: 'Report' },
   linkedRideId: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride' },
+  routeKey: { type: String, index: true },
   tag: { type: String, enum: tagValues, required: true },
   text: { type: String, required: true, maxlength: 100, trim: true },
   driverReply: { type: String, maxlength: 200, trim: true },
+  source: { type: String, enum: ['community', 'seed'], default: 'community' },
+  isPrototypeData: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -46,8 +50,8 @@ commentSchema.statics.validateDriverReply = function validateDriverReply(reply, 
 };
 
 commentSchema.pre('validate', function ensureLinkedEntity(next) {
-  if (!this.linkedReportId && !this.linkedRideId) {
-    this.invalidate('linkedReportId', 'Either linkedReportId or linkedRideId is required.');
+  if (!this.linkedReportId && !this.linkedRideId && !this.routeKey) {
+    this.invalidate('linkedReportId', 'Either linkedReportId, linkedRideId, or routeKey is required.');
   }
 
   if (this.text && !this.constructor.validateText(this.text)) {

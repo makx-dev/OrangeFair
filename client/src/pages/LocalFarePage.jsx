@@ -36,7 +36,7 @@ const LocalFarePage = () => {
       const distanceKm = routeInfo ? routeInfo.totalDistance : 0;
 
       // Now fetch estimate
-      const response = await axios.get('/api/local-fare/estimate', {
+      const response = await axios.get('/local-fare/estimate', {
         params: {
           pickupLat: pickup.lat,
           pickupLng: pickup.lng,
@@ -61,7 +61,7 @@ const LocalFarePage = () => {
     
     setIsSubmitting(true);
     try {
-      await axios.post('/api/local-fare/observations', {
+      await axios.post('/local-fare/observations', {
         pickupLocation: pickup,
         dropLocation: destination,
         rideType,

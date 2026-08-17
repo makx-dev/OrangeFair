@@ -26,7 +26,6 @@ const NAV_ITEMS = [
   { labelKey: 'logRide', path: '/log-ride', icon: Car, group: 'MAIN' },
   { labelKey: 'reports', path: '/reports', icon: FileWarning, group: 'COMMUNITY' },
   { labelKey: 'routeWatch', path: '/route-watch', icon: Activity, group: 'COMMUNITY' },
-  { labelKey: 'leaderboard', path: '/leaderboard', icon: Trophy, group: 'COMMUNITY' },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {

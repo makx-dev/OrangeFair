@@ -21,4 +21,7 @@ const optionalAuth = async (req, res, next) => {
 
 router.post('/observations', optionalAuth, localFareController.submitObservation);
 
+// Fetch comments for a specific route
+router.get('/comments', localFareController.getComments);
+
 module.exports = router;

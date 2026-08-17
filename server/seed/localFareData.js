@@ -1,93 +1,167 @@
+const mongoose = require('mongoose');
 const FareObservation = require('../models/FareObservation');
+const Comment = require('../models/Comment');
 const { getRouteKey } = require('../utils/fareIntelligence');
 
-// Example Seed Routes for Nagpur
-const seedRoutes = [
+const prototypeLocations = {
+  sitaburdiMetro: { name: 'Sitaburdi Metro Station', lat: 21.1460206, lng: 79.0897328 },
+  vrMall: { name: 'VR Mall Nagpur', lat: 21.1377319, lng: 79.068821 },
+  hingnaTPointVasudev: { name: 'Hingna T Point (Vasudev Nagar)', lat: 21.1187853, lng: 79.0194659 },
+  burdi: { name: 'Burdi', lat: 21.1402262, lng: 79.0871588 },
+  subashNagar: { name: 'Subash Nagar', lat: 21.128, lng: 79.043 },
+  ganeshPeth: { name: 'Ganesh Peth Bus Stop', lat: 21.144, lng: 79.102 },
+  sitaburdi: { name: 'Sitaburdi', lat: 21.1402262, lng: 79.0871588 },
+  hingnaTPoint: { name: 'Hingna T Point', lat: 21.1229783, lng: 79.0380712 },
+  lokmanyaNagar: { name: 'Lokmanya Nagar', lat: 21.1108046, lng: 79.001754 },
+  isasani: { name: 'Isasani', lat: 21.101, lng: 78.983 }
+};
+
+const prototypeRoutes = [
   {
-    pickup: { name: 'Sitabuldi', lat: 21.144, lng: 79.083 },
-    drop: { name: 'Railway Station', lat: 21.149, lng: 79.097 },
-    distanceKm: 2.1,
-    distributions: {
-      shared: { min: 20, max: 35, count: 143, median: 27 },
-      private: { min: 60, max: 90, count: 52, median: 75 }
-    }
+    pickup: prototypeLocations.sitaburdiMetro,
+    drop: prototypeLocations.vrMall,
+    fare: 10,
+    rideType: 'shared',
+    comments: [
+      { tag: 'Fair Fare', text: 'Fare matched the usual local amount.', type: 'positive' }
+    ]
   },
   {
-    pickup: { name: 'Dharampeth', lat: 21.139, lng: 79.053 },
-    drop: { name: 'Airport', lat: 21.059, lng: 79.055 },
-    distanceKm: 9.8,
-    distributions: {
-      private: { min: 220, max: 280, count: 87, median: 250 },
-      shared: { min: 40, max: 60, count: 12, median: 50 } // Low confidence
-    }
+    pickup: prototypeLocations.hingnaTPointVasudev,
+    drop: prototypeLocations.burdi,
+    fare: 30,
+    rideType: 'shared',
+    comments: [
+      { tag: 'Fair Fare', text: 'Driver quoted ₹30 and dropped at Burdi.', type: 'positive' }
+    ]
   },
   {
-    pickup: { name: 'Sadar', lat: 21.157, lng: 79.075 },
-    drop: { name: 'Itwari', lat: 21.152, lng: 79.111 },
-    distanceKm: 5.2,
-    distributions: {
-      shared: { min: 30, max: 45, count: 189, median: 35 },
-      private: { min: 100, max: 140, count: 64, median: 120 }
-    }
+    pickup: prototypeLocations.subashNagar,
+    drop: prototypeLocations.ganeshPeth,
+    fare: 30,
+    rideType: 'shared',
+    comments: [
+      { tag: 'Used Meter', text: 'Meter was used for the ride.', type: 'positive' }
+    ]
+  },
+  {
+    pickup: prototypeLocations.sitaburdi,
+    drop: prototypeLocations.ganeshPeth,
+    fare: 20,
+    rideType: 'shared',
+    comments: [
+      { tag: 'Fair Fare', text: '₹20 felt reasonable for this route.', type: 'positive' },
+      { tag: 'Overcharged', text: 'Driver asked for more than the usual local fare.', type: 'negative' }
+    ]
+  },
+  {
+    pickup: prototypeLocations.hingnaTPoint,
+    drop: prototypeLocations.lokmanyaNagar,
+    fare: 10,
+    rideType: 'shared',
+    comments: [
+      { tag: 'Fair Fare', text: 'Short shared ride, fare was reasonable.', type: 'positive' }
+    ]
+  },
+  {
+    pickup: prototypeLocations.lokmanyaNagar,
+    drop: prototypeLocations.isasani,
+    fare: 10,
+    rideType: 'shared',
+    comments: [
+      { tag: 'Fair Fare', text: 'Fare was around the usual local amount.', type: 'positive' },
+      { tag: 'Refused Meter', text: 'Driver preferred a negotiated fare instead of using the meter.', type: 'negative' }
+    ]
   }
 ];
 
-/**
- * Generates an array of dummy observations based on distribution parameters.
- */
-const generateDummyObservations = (route, rideType, distParams) => {
+const generateDummyObservations = (routeData) => {
   const observations = [];
-  const routeKey = getRouteKey(route.pickup.lat, route.pickup.lng, route.drop.lat, route.drop.lng);
+  const routeKey = getRouteKey(routeData.pickup.lat, routeData.pickup.lng, routeData.drop.lat, routeData.drop.lng);
 
-  for (let i = 0; i < distParams.count; i++) {
-    // Generate a bell-curve-like random around median
-    // Using simple approach: average of 3 randoms + offset
-    const rand = (Math.random() + Math.random() + Math.random()) / 3;
-    let fare = distParams.min + rand * (distParams.max - distParams.min);
+  observations.push({
+    pickupLocation: routeData.pickup,
+    dropLocation: routeData.drop,
+    routeKey: routeKey,
+    rideType: routeData.rideType,
+    farePaid: routeData.fare,
+    distanceKm: 2, 
+    source: 'seed',
+    isPrototypeData: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24) 
+  });
+
+  const numVariations = 10 + Math.floor(Math.random() * 5); // Add ~10-14 supporting observations
+  
+  for (let i = 0; i < numVariations; i++) {
+    // Determine variation (e.g., 0, 0, 0, +5, -5) to make it look realistic
+    let variance = 0;
+    const r = Math.random();
+    if (r > 0.8) variance = 5;
+    else if (r > 0.7) variance = -5;
+    else if (r > 0.6) variance = 2;
     
-    // occasionally throw in an outlier
-    if (Math.random() < 0.05) {
-      fare = distParams.max + Math.random() * 50; 
-    }
+    // Make sure fare doesn't drop below 0
+    let finalFare = routeData.fare + variance;
+    if (finalFare <= 0) finalFare = routeData.fare;
 
     observations.push({
-      pickupLocation: route.pickup,
-      dropLocation: route.drop,
+      pickupLocation: routeData.pickup,
+      dropLocation: routeData.drop,
       routeKey: routeKey,
-      rideType: rideType,
-      farePaid: Math.round(fare),
-      distanceKm: route.distanceKm,
+      rideType: routeData.rideType,
+      farePaid: finalFare,
+      distanceKm: 2,
       source: 'seed',
-      createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000) // Random date in last 90 days
+      isPrototypeData: true,
+      createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
     });
   }
+
   return observations;
 };
 
 const seedLocalFareData = async () => {
   try {
-    const existingCount = await FareObservation.countDocuments({ source: 'seed' });
-    if (existingCount > 0) {
-      console.log('Local fare seed data already exists. Skipping seed.');
-      return;
+    await FareObservation.deleteMany({ source: 'seed' });
+    await Comment.deleteMany({ source: 'seed' });
+
+    console.log('Seeding Local Fare Prototype data...');
+    const allObservations = [];
+    const allComments = [];
+
+    let dummyUser = await mongoose.model('User').findOne({ email: 'demo@orangefair.local' });
+    if (!dummyUser) {
+        dummyUser = await mongoose.model('User').findOne({ role: 'rider' });
     }
 
-    console.log('Seeding Local Fare data for prototype...');
-    const allObservations = [];
+    for (const route of prototypeRoutes) {
+      const routeObs = generateDummyObservations(route);
+      allObservations.push(...routeObs);
 
-    for (const route of seedRoutes) {
-      if (route.distributions.shared) {
-        allObservations.push(...generateDummyObservations(route, 'shared', route.distributions.shared));
-      }
-      if (route.distributions.private) {
-        allObservations.push(...generateDummyObservations(route, 'private', route.distributions.private));
+      const routeKey = getRouteKey(route.pickup.lat, route.pickup.lng, route.drop.lat, route.drop.lng);
+
+      if (route.comments && route.comments.length > 0) {
+        for (const c of route.comments) {
+          allComments.push({
+            riderId: dummyUser._id,
+            plateNumber: 'MH31AB1024',
+            routeKey: routeKey,
+            tag: c.tag,
+            text: c.text,
+            source: 'seed',
+            isPrototypeData: true,
+            createdAt: new Date(Date.now() - Math.random() * 10 * 24 * 60 * 60 * 1000)
+          });
+        }
       }
     }
 
     await FareObservation.insertMany(allObservations);
-    console.log(`Successfully seeded ${allObservations.length} fare observations.`);
+    await Comment.insertMany(allComments);
+    console.log(`Successfully seeded ${allObservations.length} prototype fare observations and ${allComments.length} prototype comments.`);
   } catch (error) {
-    console.error('Error seeding local fare data:', error);
+    console.error('Error seeding local fare prototype data:', error);
   }
 };
 

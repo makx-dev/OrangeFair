@@ -17,6 +17,7 @@ const fareObservationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   verifiedRide: { type: Boolean, default: false },
   source: { type: String, enum: ['community', 'seed'], default: 'community' },
+  isPrototypeData: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 
