@@ -54,7 +54,7 @@ commentSchema.pre('validate', function ensureLinkedEntity(next) {
     this.invalidate('text', 'Comment text must be under 100 characters and avoid abusive or identifying content.');
   }
 
-  if (this.driverReply && !this.constructor.validateDriverReply(this.driverReply, { userRole: 'driver', existingReply: this.driverReply })) {
+  if (this.isModified('driverReply') && this.driverReply && !this.constructor.validateDriverReply(this.driverReply, { userRole: 'driver', existingReply: '' })) {
     this.invalidate('driverReply', 'Driver reply must be a unique, non-empty response under 200 characters and may only be posted by a driver.');
   }
 

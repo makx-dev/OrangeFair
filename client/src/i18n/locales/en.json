@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "Home",
+    "search": "Search Auto",
+    "logRide": "Log Ride",
+    "localFare": "Local Fare",
+    "routeWatch": "Route Watch",
+    "leaderboard": "Leaderboard"
+  },
+  "home": {
+    "title": "OrangeFair",
+    "subtitle": "Fair fares and trusted autos for Nagpur.",
+    "searchPlaceholder": "Enter RC Plate (e.g., MH31AB1234)",
+    "searchBtn": "Verify Auto",
+    "quickActions": "Quick Actions"
+  },
+  "plate": {
+    "verified": "RC Verified",
+    "communityExperiences": "Community Experiences",
+    "noExperiences": "No verified experiences yet. Be the first rider to contribute.",
+    "trustDetails": "View Trust Details",
+    "trustTrend": "Trust Trend",
+    "driverReply": "Driver response"
+  },
+  "reports": {
+    "title": "My Reports",
+    "status": {
+      "Submitted": "Submitted",
+      "UnderReview": "Under Review",
+      "PatternConfirmed": "Pattern Confirmed",
+      "Flagged": "Flagged"
+    }
+  },
+  "routeWatch": {
+    "title": "Route Watch",
+    "subtitle": "Where fares are being reported above typical expectations. (Last 14 days)",
+    "aboveExpected": "above expected",
+    "rides": "rides",
+    "notEnoughData": "Not enough recent observations."
+  },
+  "leaderboard": {
+    "title": "Trusted Drivers",
+    "nearExpected": "near expected fare",
+    "verifiedRides": "verified rides"
+  }
+}

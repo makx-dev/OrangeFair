@@ -127,7 +127,14 @@ export default function HistoryPage() {
                       Issue: {report.reason}
                     </div>
                     
-                    <div className="flex items-center gap-2 text-xs text-text-secondary">
+                    <Link 
+                      to={`/reports/${report.id}/status`}
+                      className="w-full mt-3 block text-center py-2 bg-surface border border-border rounded text-primary hover:bg-background transition-colors font-medium text-sm"
+                    >
+                      Check Status
+                    </Link>
+
+                    <div className="flex items-center gap-2 text-xs text-text-secondary mt-3">
                       <Calendar size={14} />
                       Submitted on {report.date}
                     </div>

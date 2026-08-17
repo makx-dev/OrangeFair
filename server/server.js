@@ -9,6 +9,8 @@ const rideRoutes = require('./routes/rideRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const routeWatchRoutes = require('./routes/routeWatchRoutes');
+const localFareRoutes = require('./routes/localFareRoutes');
+const { seedLocalFareData } = require('./seed/localFareData');
 
 dotenv.config();
 
@@ -32,6 +34,8 @@ app.use('/api/rides', rideRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/routewatch', routeWatchRoutes);
+app.use('/api/local-fare', localFareRoutes);
+app.use('/api/leaderboard', require('./routes/leaderboardRoutes'));
 
 const mongoUri = process.env.MONGODB_URI;
 if (mongoUri) {
@@ -39,6 +43,7 @@ if (mongoUri) {
     .connect(mongoUri)
     .then(() => {
       console.log('MongoDB connected');
+      seedLocalFareData();
     })
     .catch((error) => {
       console.error('MongoDB connection error:', error.message);

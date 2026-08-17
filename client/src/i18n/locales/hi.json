@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "होम",
+    "search": "ऑटो खोजें",
+    "logRide": "सफर दर्ज करें",
+    "localFare": "स्थानीय किराया",
+    "routeWatch": "रूट वॉच",
+    "leaderboard": "लीडरबोर्ड"
+  },
+  "home": {
+    "title": "OrangeFair",
+    "subtitle": "नागपुर के लिए उचित किराया और विश्वसनीय ऑटो।",
+    "searchPlaceholder": "RC प्लेट दर्ज करें (उदा., MH31AB1234)",
+    "searchBtn": "ऑटो सत्यापित करें",
+    "quickActions": "त्वरित क्रियाएं"
+  },
+  "plate": {
+    "verified": "RC सत्यापित",
+    "communityExperiences": "सामुदायिक अनुभव",
+    "noExperiences": "अभी तक कोई सत्यापित अनुभव नहीं। योगदान देने वाले पहले राइडर बनें।",
+    "trustDetails": "विश्वास विवरण देखें",
+    "trustTrend": "विश्वास रुझान",
+    "driverReply": "चालक की प्रतिक्रिया"
+  },
+  "reports": {
+    "title": "मेरी रिपोर्ट",
+    "status": {
+      "Submitted": "प्रस्तुत",
+      "UnderReview": "समीक्षा के तहत",
+      "PatternConfirmed": "पैटर्न की पुष्टि",
+      "Flagged": "चिह्नित"
+    }
+  },
+  "routeWatch": {
+    "title": "रूट वॉच",
+    "subtitle": "जहां किराए की रिपोर्ट सामान्य उम्मीदों से ऊपर दी जा रही है। (पिछले 14 दिन)",
+    "aboveExpected": "उम्मीद से ऊपर",
+    "rides": "सफर",
+    "notEnoughData": "पर्याप्त हालिया डेटा नहीं।"
+  },
+  "leaderboard": {
+    "title": "विश्वसनीय चालक",
+    "nearExpected": "उचित किराया",
+    "verifiedRides": "सत्यापित सफर"
+  }
+}

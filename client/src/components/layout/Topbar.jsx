@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Menu, Search, Bell, User, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '../../i18n/TranslationProvider';
 
 export default function Topbar({ onMenuClick }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useTranslation();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -43,6 +45,16 @@ export default function Topbar({ onMenuClick }) {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
+        <select 
+          value={language} 
+          onChange={(e) => setLanguage(e.target.value)}
+          className="bg-background border border-border rounded px-2 py-1 text-sm text-text-primary focus:outline-none focus:border-primary hidden sm:block"
+        >
+          <option value="en">EN</option>
+          <option value="hi">HI</option>
+          <option value="mr">MR</option>
+        </select>
+
         <button className="p-2 text-text-secondary hover:text-primary rounded-full hover:bg-primary/10 transition-colors relative">
           <Bell size={20} />
           {/* Unread badge indicator could go here */}

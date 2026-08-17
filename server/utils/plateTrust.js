@@ -94,6 +94,12 @@ function calculatePlateTrust({ rides = [], reports = [] }) {
     trustScore,
     trustTier,
     explanation: explanationParts.join(' '),
+    stats: {
+      verifiedRideCount: validRides.length,
+      accurateRideCount,
+      confirmedReportCount: patternConfirmedCount,
+      nearFarePercentage: validRides.length > 0 ? Math.round((accurateRideCount / validRides.length) * 100) : 0,
+    }
   };
 }
 

@@ -9,21 +9,29 @@ import {
   History, 
   Settings, 
   LogOut,
-  X
+  X,
+  Route,
+  Activity,
+  Trophy
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+import { useTranslation } from '../../i18n/TranslationProvider';
+
 const NAV_ITEMS = [
-  { label: 'Home', path: '/home', icon: Home, group: 'MAIN' },
-  { label: 'Fare Split', path: '/fare-split', icon: Calculator, group: 'MAIN' },
-  { label: 'Search Auto', path: '/search', icon: Search, group: 'MAIN' },
-  { label: 'Log Ride', path: '/log-ride', icon: Car, group: 'MAIN' },
-  { label: 'Reports', path: '/reports', icon: FileWarning, group: 'COMMUNITY' },
-  { label: 'Ride History', path: '/history', icon: History, group: 'COMMUNITY' },
+  { labelKey: 'home', path: '/home', icon: Home, group: 'MAIN' },
+  { labelKey: 'localFare', path: '/local-fare', icon: Route, group: 'MAIN' },
+  { labelKey: 'fareSplit', path: '/fare-split', icon: Calculator, group: 'MAIN' },
+  { labelKey: 'search', path: '/search', icon: Search, group: 'MAIN' },
+  { labelKey: 'logRide', path: '/log-ride', icon: Car, group: 'MAIN' },
+  { labelKey: 'reports', path: '/reports', icon: FileWarning, group: 'COMMUNITY' },
+  { labelKey: 'routeWatch', path: '/route-watch', icon: Activity, group: 'COMMUNITY' },
+  { labelKey: 'leaderboard', path: '/leaderboard', icon: Trophy, group: 'COMMUNITY' },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   
   const navGroups = NAV_ITEMS.reduce((acc, item) => {
     if (!acc[item.group]) acc[item.group] = [];
@@ -79,7 +87,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     `}
                   >
                     <item.icon size={20} />
-                    <span>{item.label}</span>
+                    <span>{t(`nav.${item.labelKey}`)}</span>
                   </NavLink>
                 ))}
               </nav>

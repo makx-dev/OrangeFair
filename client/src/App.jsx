@@ -12,6 +12,10 @@ import HistoryPage from './pages/HistoryPage';
 import SearchPage from './pages/SearchPage';
 import LogRidePage from './pages/LogRidePage';
 import ReportsPage from './pages/ReportsPage';
+import ReportStatusPage from './pages/ReportStatusPage';
+import RouteWatchPage from './pages/RouteWatchPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import LocalFarePage from './pages/LocalFarePage';
 
 // We will add more pages later, map them to existing pages for now
 function PublicRoute({ children }) {
@@ -49,8 +53,12 @@ export default function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/auto/:plateNumber" element={<PlateDetailPage />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/local-fare" element={<LocalFarePage />} />
         <Route path="/log-ride" element={<LogRidePage />} />
         <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/reports/:id/status" element={<ReportStatusPage />} />
+        <Route path="/route-watch" element={<RouteWatchPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/fare-split" element={<FareSplitPage />} />
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/settings" element={<div>Settings placeholder</div>} />

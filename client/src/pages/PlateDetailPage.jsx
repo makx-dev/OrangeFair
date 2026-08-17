@@ -6,6 +6,7 @@ import {
   Shield, MessageSquare, IndianRupee, AlertTriangle, Car, 
   BadgeCheck, ShieldCheck, Clock, FileCheck 
 } from 'lucide-react';
+import { useTranslation } from '../i18n/TranslationProvider';
 
 export default function PlateDetailPage() {
   const { plateNumber } = useParams();
@@ -13,6 +14,7 @@ export default function PlateDetailPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchPlate = async () => {
@@ -121,7 +123,10 @@ export default function PlateDetailPage() {
             <div className="p-6">
               <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
                 <TrustBadge tier={trust.tier} score={trust.score} />
-                <p className="text-sm text-text-secondary flex-1">{trust.explanation}</p>
+                <div className="flex-1">
+                  <p className="text-sm text-text-secondary">{trust.explanation}</p>
+                  <button className="mt-2 text-primary hover:text-primary-dark text-sm font-semibold uppercase tracking-wider">{t('plate.trustDetails')}</button>
+                </div>
               </div>
               
               {trust.stats && (
@@ -149,7 +154,7 @@ export default function PlateDetailPage() {
               <div className="w-10 h-10 rounded-full bg-info/10 flex items-center justify-center text-info">
                 <MessageSquare size={20} />
               </div>
-              <h2 className="text-xl font-bold text-text-primary">Recent Verified Experiences</h2>
+              <h2 className="text-xl font-bold text-text-primary">{t('plate.communityExperiences')}</h2>
             </div>
             
             <div className="p-6">
@@ -158,21 +163,34 @@ export default function PlateDetailPage() {
                   {recentComments.map((comment) => (
                     <div key={comment._id} className="bg-background border border-border rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="px-2.5 py-1 bg-surface border border-border rounded-md text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                        <span className="px-2.5 py-1 bg-surface border border-border rounded-md text-xs font-semibold text-text-secondary uppercase tracking-wider flex items-center gap-1">
+                          {comment.tag === 'Overcharged' || comment.tag === 'Refused Meter' || comment.tag === 'Rude' ? <AlertTriangle size={12} className="text-error" /> : <BadgeCheck size={12} className="text-success" />}
                           {comment.tag}
                         </span>
                         <span className="text-xs text-text-secondary">
-                          By {comment.riderId?.name || 'Anonymous'}
+                          {new Date(comment.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <p className="text-text-primary">{comment.text}</p>
+                      <p className="text-text-primary mb-3">"{comment.text}"</p>
+                      <p className="text-xs text-text-secondary mb-1">
+                        Verified rider
+                      </p>
+                      
+                      {comment.driverReply && (
+                        <div className="mt-4 pt-3 border-t border-border bg-surface rounded p-3 text-sm">
+                          <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1">
+                            Driver response
+                          </p>
+                          <p className="text-text-primary">"{comment.driverReply}"</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8">
                   <MessageSquare size={32} className="mx-auto text-text-secondary/50 mb-3" />
-                  <p className="text-text-primary font-medium">No verified experiences yet.</p>
+                  <p className="text-text-primary font-medium">{t('plate.noExperiences')}</p>
                 </div>
               )}
             </div>

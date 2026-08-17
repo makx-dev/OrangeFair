@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "home": "मुख्य पृष्ठ",
+    "search": "ऑटो शोधा",
+    "logRide": "प्रवास नोंदवा",
+    "localFare": "स्थानिक भाडे",
+    "routeWatch": "रूट वॉच",
+    "leaderboard": "लीडरबोर्ड"
+  },
+  "home": {
+    "title": "OrangeFair",
+    "subtitle": "नागपूरसाठी योग्य भाडे आणि विश्वासार्ह ऑटो.",
+    "searchPlaceholder": "RC नंबर टाका (उदा., MH31AB1234)",
+    "searchBtn": "ऑटो पडताळणी करा",
+    "quickActions": "जलद कृती"
+  },
+  "plate": {
+    "verified": "RC पडताळणी झाली",
+    "communityExperiences": "सामुदायिक अनुभव",
+    "noExperiences": "अद्याप कोणतेही अनुभव नाहीत. योगदान देणारे पहिले प्रवासी व्हा.",
+    "trustDetails": "विश्वास तपशील पहा",
+    "trustTrend": "विश्वास कल",
+    "driverReply": "चालकाचा प्रतिसाद"
+  },
+  "reports": {
+    "title": "माझे अहवाल",
+    "status": {
+      "Submitted": "सादर केले",
+      "UnderReview": "पुनरावलोकनाखाली",
+      "PatternConfirmed": "पॅटर्न निश्चित",
+      "Flagged": "चिन्हांकित"
+    }
+  },
+  "routeWatch": {
+    "title": "रूट वॉच",
+    "subtitle": "जेथे सामान्य अपेक्षांपेक्षा जास्त भाड्याची नोंद होत आहे. (गेले 14 दिवस)",
+    "aboveExpected": "अपेक्षेपेक्षा जास्त",
+    "rides": "प्रवास",
+    "notEnoughData": "पुरेशी अलीकडील माहिती नाही."
+  },
+  "leaderboard": {
+    "title": "विश्वसनीय चालक",
+    "nearExpected": "योग्य भाडे",
+    "verifiedRides": "सत्यापित प्रवास"
+  }
+}
