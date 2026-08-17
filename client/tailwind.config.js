@@ -4,10 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#599AD7',
-        accent: '#EBB773',
-        dark: '#313131',
-        surface: '#FFFFFF',
+        primary: 'var(--color-primary)',
+        'primary-dark': 'var(--color-primary-dark)',
+        background: 'var(--color-background)',
+        surface: 'var(--color-surface)',
+        'text-primary': 'var(--color-text-primary)',
+        'text-secondary': 'var(--color-text-secondary)',
+        border: 'var(--color-border)',
+        success: 'var(--color-success)',
+        warning: 'var(--color-warning)',
+        error: 'var(--color-error)',
+        info: 'var(--color-info)',
       },
     },
   },
