@@ -1,5 +1,8 @@
 const Plate = require('../models/Plate');
 const Comment = require('../models/Comment');
+const Ride = require('../models/Ride');
+const Report = require('../models/Report');
+const { calculatePlateTrust } = require('../utils/plateTrust');
 
 exports.getPlateDetails = async (req, res) => {
   try {
@@ -14,10 +17,18 @@ exports.getPlateDetails = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    const recentComments = await Comment.find({ plateNumber })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .populate('riderId', 'name');
+    const [recentComments, rides, reports] = await Promise.all([
+      Comment.find({ plateNumber }).sort({ createdAt: -1 }).limit(5).populate('riderId', 'name'),
+      Ride.find({ plateNumber }).sort({ timestamp: -1 }).limit(50).lean(),
+      Report.find({ plateNumber }).sort({ createdAt: -1 }).limit(50).lean(),
+    ]);
+
+    const trustResult = calculatePlateTrust({ rides, reports });
+
+    plate.trustScore = trustResult.trustScore;
+    plate.trustTier = trustResult.trustTier;
+    plate.explanation = trustResult.explanation;
+    await plate.save();
 
     const fairFareEstimate = {
       currency: 'INR',
@@ -30,6 +41,7 @@ exports.getPlateDetails = async (req, res) => {
       plateNumber: plate.plateNumber,
       trustScore: plate.trustScore,
       trustTier: plate.trustTier,
+      explanation: plate.explanation,
       recentComments,
       fairFareEstimate,
     });
