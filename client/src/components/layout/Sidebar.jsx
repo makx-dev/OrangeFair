@@ -58,7 +58,7 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Brand Header */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-border">
           <div className="text-xl font-bold text-primary flex items-center gap-2">
-            <span className="text-2xl">🍊</span> OrangeFair
+            <span className="text-2xl">🍊</span> Orange Fare
           </div>
           <button onClick={onClose} className="md:hidden text-text-secondary hover:text-text-primary">
             <X size={20} />

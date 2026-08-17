@@ -68,7 +68,7 @@ export default function LoginPage() {
         
         <div className="relative z-10">
           <div className="text-3xl font-bold flex items-center gap-3 mb-16">
-            <span className="text-4xl">🍊</span> OrangeFair
+            <span className="text-4xl">🍊</span> Orange Fare
           </div>
           
           <h1 className="text-5xl font-bold leading-tight mb-6">
@@ -89,7 +89,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center lg:text-left">
             <div className="lg:hidden text-3xl font-bold flex items-center justify-center gap-2 mb-8 text-primary">
-              <span className="text-3xl">🍊</span> OrangeFair
+              <span className="text-3xl">🍊</span> Orange Fare
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-text-primary">Welcome back</h2>
             <p className="mt-2 text-sm text-text-secondary">Please enter your details to sign in.</p>
