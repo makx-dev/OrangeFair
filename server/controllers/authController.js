@@ -10,12 +10,16 @@ function signToken(user) {
   );
 }
 
+const { OAuth2Client } = require('google-auth-library');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 exports.register = async (req, res) => {
   try {
-    const { name, phone, email, password, role } = req.body;
+    const { name, email, password, role } = req.body;
 
-    if (!name || !phone || !email || !password) {
-      return res.status(400).json({ message: 'name, phone, email, and password are required.' });
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'name, email, and password are required.' });
     }
 
     const existing = await User.findOne({ email: email.toLowerCase() });
@@ -24,12 +28,12 @@ exports.register = async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, phone, email, passwordHash, role });
+    const user = await User.create({ name, email, passwordHash, role });
 
     const token = signToken(user);
     return res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
     return res.status(500).json({ message: 'Registration failed.', error: error.message });
@@ -48,6 +52,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
+    if (!user.passwordHash) {
+       return res.status(401).json({ message: 'Please sign in with Google.' });
+    }
+
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials.' });
@@ -56,9 +64,52 @@ exports.login = async (req, res) => {
     const token = signToken(user);
     return res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
     return res.status(500).json({ message: 'Login failed.', error: error.message });
+  }
+};
+
+exports.googleAuth = async (req, res) => {
+  try {
+    const { token, role } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ message: 'Google token is required.' });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID, 
+    });
+    
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name } = payload;
+    
+    let user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+      user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        googleId,
+        role: role || 'rider',
+      });
+    } else if (!user.googleId) {
+      // Link Google account to existing user if they signed up with email/password previously
+      user.googleId = googleId;
+      await user.save();
+    }
+    
+    const sessionToken = signToken(user);
+    
+    return res.json({
+      token: sessionToken,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    return res.status(500).json({ message: 'Google authentication failed.', error: error.message });
   }
 };

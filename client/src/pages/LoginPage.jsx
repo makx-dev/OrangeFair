@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser } from '../api/endpoints';
+import { loginUser, googleAuth } from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -19,6 +20,21 @@ export default function LoginPage() {
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to login.');
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError('');
+    try {
+      const response = await googleAuth({ token: credentialResponse.credential });
+      login(response.data.token, response.data.user);
+      navigate('/dashboard');
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Google sign in failed.');
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google Sign In was unsuccessful. Try again later');
   };
 
   return (
@@ -44,6 +60,26 @@ export default function LoginPage() {
           Sign In
         </button>
       </form>
+      
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-dark/20"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-surface px-2 text-dark/60">Or continue with</span>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            useOneTap
+          />
+        </div>
+      </div>
+
       <p className="mt-4 text-sm text-dark/70">
         New here?{' '}
         <Link to="/register" className="font-medium text-primary">
