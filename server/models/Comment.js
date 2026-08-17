@@ -1,13 +1,18 @@
 const mongoose = require('mongoose');
 
 const tagValues = [
+  'Used Meter',
+  'Fair Fare',
+  'Safe Driving',
+  'Polite',
+  'Clean Auto',
+  'Helpful Driver',
   'Overcharged',
   'Refused Meter',
-  'Rude',
-  'Safe Driving',
-  'Used Meter',
   'Refused Short Trip',
-  'Fair Fare'
+  'Rude',
+  'Unsafe Driving',
+  'Unclear Fare',
 ];
 
 const blockedKeywords = /(idiot|moron|stupid|loser|fraud|scam|liar|cheat|fake|shame)/i;
@@ -22,9 +27,15 @@ const commentSchema = new mongoose.Schema({
   tag: { type: String, enum: tagValues, required: true },
   text: { type: String, required: true, maxlength: 100, trim: true },
   driverReply: { type: String, maxlength: 200, trim: true },
+  status: {
+    type: String,
+    enum: ['visible', 'under_review', 'removed'],
+    default: 'visible',
+  },
   source: { type: String, enum: ['community', 'seed'], default: 'community' },
   isPrototypeData: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 commentSchema.statics.validateText = function validateText(text) {
@@ -67,3 +78,4 @@ commentSchema.pre('validate', function ensureLinkedEntity(next) {
 
 module.exports = mongoose.model('Comment', commentSchema);
 module.exports.tagValues = tagValues;
+

@@ -106,11 +106,131 @@ exports.googleAuth = async (req, res) => {
     
     return res.json({
       token: sessionToken,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role, preferences: user.preferences },
     });
   } catch (error) {
     console.error('Google Auth Error:', error);
     return res.status(500).json({ message: 'Google authentication failed.', error: error.message });
+  }
+};
+
+exports.getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-passwordHash');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    return res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        googleId: user.googleId,
+        isGoogleOnly: Boolean(user.googleId && !user.passwordHash),
+        preferences: user.preferences || {
+          language: 'en',
+          notifications: {
+            reportUpdates: true,
+            communityActivity: true,
+            accountNotifications: true,
+          },
+          profileVisibility: 'community',
+          communityActivityVisibility: true,
+        },
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to fetch user profile.', error: error.message });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, preferences } = req.body;
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    if (name && typeof name === 'string' && name.trim()) {
+      user.name = name.trim();
+    }
+
+    if (preferences && typeof preferences === 'object') {
+      if (preferences.language && ['en', 'hi', 'mr'].includes(preferences.language)) {
+        user.preferences.language = preferences.language;
+      }
+      if (preferences.notifications && typeof preferences.notifications === 'object') {
+        user.preferences.notifications = {
+          ...user.preferences.notifications,
+          ...preferences.notifications,
+        };
+      }
+      if (preferences.profileVisibility && ['public', 'community', 'private'].includes(preferences.profileVisibility)) {
+        user.preferences.profileVisibility = preferences.profileVisibility;
+      }
+      if (typeof preferences.communityActivityVisibility === 'boolean') {
+        user.preferences.communityActivityVisibility = preferences.communityActivityVisibility;
+      }
+    }
+
+    await user.save();
+
+    return res.json({
+      message: 'Profile updated successfully.',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        preferences: user.preferences,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to update profile.', error: error.message });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current password and new password are required.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters long.' });
+    }
+
+    if (confirmPassword && newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'New password and confirmation do not match.' });
+    }
+
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    if (!user.passwordHash) {
+      return res.status(400).json({
+        message: 'This account was created with Google Sign-In. Password change is not supported for Google accounts.',
+      });
+    }
+
+    const isValidPassword = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'Current password is incorrect.' });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    return res.json({ message: 'Password changed successfully.' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to change password.', error: error.message });
   }
 };
 

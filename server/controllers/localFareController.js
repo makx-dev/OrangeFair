@@ -1,6 +1,8 @@
 const FareObservation = require('../models/FareObservation');
 const Comment = require('../models/Comment');
 const { getRouteKey, calculateFareStatistics, calculateConfidence } = require('../utils/fareIntelligence');
+const { getSmartRecommendation } = require('../utils/metroIntelligence');
+
 
 // Note: Official tariff constants for Nagpur (simplified for calculation)
 // Base fare for first 1.5km is ~24. Then ~16 per km. (These are indicative)
@@ -47,13 +49,23 @@ exports.getEstimate = async (req, res) => {
 
     const confidence = calculateConfidence(stats.sampleSize);
 
+    const metroRecommendation = getSmartRecommendation(
+      parseFloat(pickupLat), 
+      parseFloat(pickupLng), 
+      parseFloat(dropLat), 
+      parseFloat(dropLng), 
+      stats.median,
+      parseFloat(distanceKm)
+    );
+
     res.json({
       hasData: true,
       stats,
       confidence,
       officialFare,
       isSeeded,
-      routeKey
+      routeKey,
+      metroRecommendation
     });
 
   } catch (error) {

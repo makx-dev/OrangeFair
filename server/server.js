@@ -10,6 +10,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const routeWatchRoutes = require('./routes/routeWatchRoutes');
 const localFareRoutes = require('./routes/localFareRoutes');
+const rtoRoutes = require('./routes/rtoRoutes');
 const { seedLocalFareData } = require('./seed/localFareData');
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use('/api/plates', plateRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/rto', rtoRoutes);
 app.use('/api/routewatch', routeWatchRoutes);
 app.use('/api/local-fare', localFareRoutes);
 app.use('/api/leaderboard', require('./routes/leaderboardRoutes'));

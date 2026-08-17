@@ -15,6 +15,8 @@ import ReportsPage from './pages/ReportsPage';
 import ReportStatusPage from './pages/ReportStatusPage';
 import RouteWatchPage from './pages/RouteWatchPage';
 import LocalFarePage from './pages/LocalFarePage';
+import SettingsPage from './pages/SettingsPage';
+import RTOEscalationPage from './pages/RTOEscalationPage';
 
 // We will add more pages later, map them to existing pages for now
 function PublicRoute({ children }) {
@@ -55,14 +57,18 @@ export default function App() {
         <Route path="/local-fare" element={<LocalFarePage />} />
         <Route path="/log-ride" element={<LogRidePage />} />
         <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/reports/:id" element={<ReportStatusPage />} />
         <Route path="/reports/:id/status" element={<ReportStatusPage />} />
+        <Route path="/rto/prepare/:reportId" element={<RTOEscalationPage />} />
+        <Route path="/rto/:id" element={<RTOEscalationPage />} />
         <Route path="/route-watch" element={<RouteWatchPage />} />
         <Route path="/fare-split" element={<FareSplitPage />} />
         <Route path="/history" element={<HistoryPage />} />
-        <Route path="/settings" element={<div>Settings placeholder</div>} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   );
 }
+

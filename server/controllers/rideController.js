@@ -32,6 +32,19 @@ exports.createRide = async (req, res) => {
   }
 };
 
+exports.getMyRides = async (req, res) => {
+  try {
+    const rides = await Ride.find({ riderId: req.user.userId })
+      .sort({ timestamp: -1 })
+      .lean();
+
+    return res.json({ rides });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to fetch your rides.', error: error.message });
+  }
+};
+
+
 exports.splitRideFare = async (req, res) => {
   try {
     const { dropPoints } = req.body;

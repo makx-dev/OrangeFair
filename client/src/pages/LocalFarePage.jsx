@@ -4,6 +4,7 @@ import LocationAutocomplete from '../components/FareSplit/LocationAutocomplete';
 import { calculateRouteInfo } from '../utils/geoApi';
 import axios from '../api/axios';
 import FareComparisonCard from '../components/LocalFare/FareComparisonCard';
+import SmartAlternativeCard from '../components/LocalFare/SmartAlternativeCard';
 import CommunityExperiences from '../components/LocalFare/CommunityExperiences';
 
 const LocalFarePage = () => {
@@ -200,6 +201,10 @@ const LocalFarePage = () => {
               />
 
               <hr className="border-border" />
+
+              <SmartAlternativeCard 
+                recommendation={result.metroRecommendation} 
+              />
 
               <CommunityExperiences routeKey={result.routeKey} />
 

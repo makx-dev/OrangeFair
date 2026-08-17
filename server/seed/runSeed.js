@@ -3,6 +3,8 @@ const dotenv = require('dotenv');
 const { seedData } = require('./prototypeData');
 const { seedLocalFareData } = require('./localFareData');
 
+const path = require('path');
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config();
 
 const mongoUri = process.env.MONGODB_URI;

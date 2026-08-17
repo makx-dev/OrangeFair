@@ -27,6 +27,8 @@ const reportSchema = new mongoose.Schema({
     enum: ['Submitted', 'UnderReview', 'PatternConfirmed', 'Flagged'],
     default: 'Submitted',
   },
+  source: { type: String, enum: ['community', 'seed'], default: 'community' },
+  isPrototypeData: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 

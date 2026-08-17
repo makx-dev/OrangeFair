@@ -7,7 +7,9 @@
     "fareSplit": "Fare Split",
     "routeWatch": "Route Watch",
     "leaderboard": "Leaderboard",
-    "reports": "Reports"
+    "reports": "Reports",
+    "history": "History",
+    "settings": "Settings"
   },
   "home": {
     "title": "Orange Fare",

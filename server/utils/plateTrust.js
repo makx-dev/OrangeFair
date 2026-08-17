@@ -13,29 +13,59 @@ const getTrustTier = (score) => {
   return 'Flagged';
 };
 
+const KNOWN_ROUTE_FARES = {
+  'Sitabuldi|Railway Station': 30,
+  'Railway Station|Sitabuldi': 30,
+  'Airport|Dharampeth': 160,
+  'Dharampeth|Airport': 160,
+  'Medical Square|Sadar': 90,
+  'Sadar|Medical Square': 90,
+  'Manewada|Hingna': 140,
+  'Hingna|Manewada': 140,
+  'Wardha Road|Central Avenue': 70,
+  'Central Avenue|Wardha Road': 70,
+  'Sitaburdi Metro Station|VR Mall Nagpur': 10,
+  'VR Mall Nagpur|Sitaburdi Metro Station': 10,
+  'Hingna T Point (Vasudev Nagar)|Burdi': 30,
+  'Burdi|Hingna T Point (Vasudev Nagar)': 30,
+  'Subash Nagar|Ganesh Peth Bus Stop': 30,
+  'Ganesh Peth Bus Stop|Subash Nagar': 30,
+  'Sitaburdi|Ganesh Peth Bus Stop': 20,
+  'Ganesh Peth Bus Stop|Sitaburdi': 20,
+  'Hingna T Point|Lokmanya Nagar': 10,
+  'Lokmanya Nagar|Hingna T Point': 10,
+  'Lokmanya Nagar|Isasani': 10,
+  'Isasani|Lokmanya Nagar': 10,
+};
+
 const getRideEstimate = (ride, rides = []) => {
   if (!ride) return 0;
 
   const directEstimate = normalizeNumber(ride.fairFareEstimate ?? ride.estimatedFare);
   if (directEstimate > 0) return directEstimate;
 
-  const rideDistances = rides
-    .filter((item) => Array.isArray(item?.dropPoints) && item.dropPoints.length > 0)
-    .map((item) => item.dropPoints.reduce((sum, point) => sum + normalizeNumber(point.distanceFromPickup), 0));
+  if (ride.route?.pickup && ride.route?.drop) {
+    const key = `${ride.route.pickup.trim()}|${ride.route.drop.trim()}`;
+    if (KNOWN_ROUTE_FARES[key]) {
+      return KNOWN_ROUTE_FARES[key];
+    }
+  }
 
-  const uniqueDistances = [...new Set(rideDistances.filter((distance) => distance > 0))];
-
-  if (uniqueDistances.length === 1 && uniqueDistances[0] > 0) {
-    const averageFare = rides.reduce((sum, item) => sum + normalizeNumber(item?.fareAmount), 0) / rides.length;
-    if (Number.isFinite(averageFare) && averageFare > 0) {
-      return averageFare;
+  // Calculate based on similar rides on same route
+  if (ride.route?.pickup && Array.isArray(rides) && rides.length > 0) {
+    const matchingRouteRides = rides.filter(
+      (r) => r?.route?.pickup === ride.route?.pickup && r?.route?.drop === ride.route?.drop
+    );
+    if (matchingRouteRides.length > 0) {
+      const avg = matchingRouteRides.reduce((sum, item) => sum + normalizeNumber(item?.fareAmount), 0) / matchingRouteRides.length;
+      if (avg > 0) return avg;
     }
   }
 
   if (Array.isArray(ride.dropPoints) && ride.dropPoints.length > 0) {
     const totalDistance = ride.dropPoints.reduce((sum, point) => sum + normalizeNumber(point.distanceFromPickup), 0);
     if (totalDistance > 0) {
-      return totalDistance * 10;
+      return totalDistance <= 1.5 ? 24 : Math.round(24 + (totalDistance - 1.5) * 17.14);
     }
   }
 

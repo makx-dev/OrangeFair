@@ -124,7 +124,7 @@ const generateDummyObservations = (routeData) => {
 const seedLocalFareData = async () => {
   try {
     await FareObservation.deleteMany({ source: 'seed' });
-    await Comment.deleteMany({ source: 'seed' });
+    await Comment.deleteMany({ routeKey: { $exists: true, $ne: null } });
 
     console.log('Seeding Local Fare Prototype data...');
     const allObservations = [];
