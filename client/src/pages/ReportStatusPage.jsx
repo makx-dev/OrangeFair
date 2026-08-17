@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getReportStatus } from '../api/endpoints';
+import { getReportStatus } from '../api/endpoints'; // force reload
 import { FileWarning, CheckCircle2, Clock, AlertTriangle, ShieldAlert, ArrowLeft } from 'lucide-react';
 import { useTranslation } from '../i18n/TranslationProvider';
 
