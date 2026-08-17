@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { loginUser, googleAuth, devLogin } from '../api/endpoints';
+import { loginUser, googleAuth } from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -42,20 +42,6 @@ export default function LoginPage() {
 
   const handleGoogleError = () => {
     setError('Google Sign In was unsuccessful. Try again later.');
-  };
-
-  const handleDevLogin = async () => {
-    setError('');
-    setIsLoading(true);
-    try {
-      const response = await devLogin();
-      login(response.data.token, response.data.user);
-      navigate(from, { replace: true });
-    } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Dev login failed.');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (
@@ -155,15 +141,6 @@ export default function LoginPage() {
               size="large"
               width="100%"
             />
-            
-            <button
-              type="button"
-              onClick={handleDevLogin}
-              disabled={isLoading}
-              className="w-full rounded-lg border-2 border-dashed border-primary/50 text-primary hover:bg-primary/10 px-4 py-2.5 font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              🛠️ Dev Sign In
-            </button>
           </div>
 
           <p className="text-center text-sm text-text-secondary mt-8">

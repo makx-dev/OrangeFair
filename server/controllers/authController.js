@@ -114,22 +114,4 @@ exports.googleAuth = async (req, res) => {
   }
 };
 
-exports.devLogin = async (req, res) => {
-  try {
-    let user = await User.findOne({ email: 'rider1@prototype.local' });
-    if (!user) {
-      user = await User.create({
-        name: 'Dev Rider',
-        email: 'rider1@prototype.local',
-        role: 'rider'
-      });
-    }
-    const token = signToken(user);
-    return res.json({
-      token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
-    });
-  } catch (error) {
-    return res.status(500).json({ message: 'Dev login failed', error: error.message });
-  }
-};
+
