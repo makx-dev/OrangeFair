@@ -1,129 +1,177 @@
-import { useState } from 'react';
-import { splitFare } from '../api/endpoints';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-function buildPoints(count) {
-  return Array.from({ length: count }, (_, index) => ({
-    rider: `Passenger ${index + 1}`,
-    dropPoint: `Drop ${index + 1}`,
-    distanceFromPickup: '',
-  }));
-}
-
-export default function FareSplitPage() {
+const FareSplitPage = () => {
   const [totalFare, setTotalFare] = useState('');
-  const [passengerCount, setPassengerCount] = useState(2);
-  const [dropPoints, setDropPoints] = useState(buildPoints(2));
-  const [result, setResult] = useState(null);
+  const [dropPoints, setDropPoints] = useState([
+    { rider: 'Passenger 1', dropPoint: 'Location A', distanceFromPickup: '' }
+  ]);
+  const [results, setResults] = useState(null);
   const [error, setError] = useState('');
 
-  const updatePassengerCount = (value) => {
-    const parsed = Math.max(1, Number(value) || 1);
-    setPassengerCount(parsed);
-    setDropPoints(buildPoints(parsed));
-    setResult(null);
+  const handleAddRider = () => {
+    const newIndex = dropPoints.length + 1;
+    setDropPoints([
+      ...dropPoints, 
+      { rider: `Passenger ${newIndex}`, dropPoint: `Location ${String.fromCharCode(64 + newIndex)}`, distanceFromPickup: '' }
+    ]);
   };
 
-  const onSubmit = async (event) => {
-    event.preventDefault();
+  const handlePointChange = (index, field, value) => {
+    const updatedPoints = [...dropPoints];
+    updatedPoints[index][field] = value;
+    setDropPoints(updatedPoints);
+  };
+
+  const handleRemoveRider = (index) => {
+    const updatedPoints = dropPoints.filter((_, i) => i !== index);
+    setDropPoints(updatedPoints);
+  };
+
+  const calculateSplit = async (e) => {
+    e.preventDefault();
     setError('');
+    setResults(null);
+
+    // Format the payload exactly as the backend expects
+    const payload = {
+      totalFare: Number(totalFare),
+      passengerCount: dropPoints.length,
+      dropPoints: dropPoints.map(p => ({
+        rider: p.rider,
+        dropPoint: p.dropPoint,
+        distanceFromPickup: Number(p.distanceFromPickup)
+      }))
+    };
+
     try {
-      const payload = {
-        totalFare: Number(totalFare),
-        passengerCount,
-        dropPoints: dropPoints.map((point) => ({ ...point, distanceFromPickup: Number(point.distanceFromPickup) })),
-      };
-      const response = await splitFare(payload);
-      setResult(response.data);
-    } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Unable to split fare.');
-      setResult(null);
+      // Calls your updated backend route
+      const response = await axios.post('http://localhost:5000/api/rides/split', payload);
+      setResults(response.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to calculate fare split.");
     }
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-6 py-10">
-      <h1 className="text-3xl font-bold">Multi-passenger fair split</h1>
-      <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-primary/20 p-6">
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="text-sm">
-            Total Fare (₹)
-            <input
-              type="number"
-              min="1"
-              value={totalFare}
-              onChange={(event) => setTotalFare(event.target.value)}
-              className="mt-1 w-full rounded-md border border-primary/30 px-3 py-2"
-            />
-          </label>
-          <label className="text-sm">
-            Passenger count
-            <input
-              type="number"
-              min="1"
-              value={passengerCount}
-              onChange={(event) => updatePassengerCount(event.target.value)}
-              className="mt-1 w-full rounded-md border border-primary/30 px-3 py-2"
-            />
-          </label>
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-xl mt-10 border-t-4 border-orange-500">
+      <h1 className="text-3xl font-extrabold text-gray-800 mb-2">Fair Fare Engine</h1>
+      <p className="text-gray-500 mb-8">Calculate proportional splits based on distance.</p>
+      
+      <form onSubmit={calculateSplit}>
+        <div className="mb-6 bg-orange-50 p-4 rounded-lg border border-orange-100">
+          <label className="block text-orange-800 font-bold mb-2 text-lg">Total Meter Fare (₹)</label>
+          <input
+            type="number"
+            min="1"
+            step="0.01"
+            className="w-full md:w-1/2 border border-orange-300 rounded-lg p-3 text-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            value={totalFare}
+            onChange={(e) => setTotalFare(e.target.value)}
+            required
+            placeholder="e.g. 450"
+          />
         </div>
 
-        <div className="space-y-3">
-          {dropPoints.map((point, index) => (
-            <div key={point.rider} className="grid gap-3 md:grid-cols-3">
-              <input
-                value={point.rider}
-                onChange={(event) =>
-                  setDropPoints((prev) => prev.map((item, i) => (i === index ? { ...item, rider: event.target.value } : item)))
-                }
-                className="rounded-md border border-primary/30 px-3 py-2"
-                placeholder="Rider name"
-              />
-              <input
-                value={point.dropPoint}
-                onChange={(event) =>
-                  setDropPoints((prev) => prev.map((item, i) => (i === index ? { ...item, dropPoint: event.target.value } : item)))
-                }
-                className="rounded-md border border-primary/30 px-3 py-2"
-                placeholder="Drop point"
-              />
-              <input
-                type="number"
-                min="0.1"
-                step="0.1"
-                value={point.distanceFromPickup}
-                onChange={(event) =>
-                  setDropPoints((prev) =>
-                    prev.map((item, i) => (i === index ? { ...item, distanceFromPickup: event.target.value } : item))
-                  )
-                }
-                className="rounded-md border border-primary/30 px-3 py-2"
-                placeholder="Distance from pickup"
-              />
-            </div>
-          ))}
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-700">Passenger Drop Points</h2>
+            <button
+              type="button"
+              className="text-orange-600 font-bold bg-orange-100 hover:bg-orange-200 px-4 py-2 rounded-lg transition"
+              onClick={handleAddRider}
+            >
+              + Add Passenger
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {dropPoints.map((point, index) => (
+              <div key={index} className="flex flex-col md:flex-row items-center gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <input
+                  type="text"
+                  className="w-full md:w-1/3 border border-gray-300 rounded p-2 focus:outline-none focus:border-orange-500"
+                  value={point.rider}
+                  onChange={(e) => handlePointChange(index, 'rider', e.target.value)}
+                  placeholder="Passenger Name"
+                  required
+                />
+                <input
+                  type="text"
+                  className="w-full md:w-1/3 border border-gray-300 rounded p-2 focus:outline-none focus:border-orange-500"
+                  value={point.dropPoint}
+                  onChange={(e) => handlePointChange(index, 'dropPoint', e.target.value)}
+                  placeholder="Drop Location"
+                  required
+                />
+                <div className="w-full md:w-1/3 flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-orange-500"
+                    placeholder="Distance (km)"
+                    value={point.distanceFromPickup}
+                    onChange={(e) => handlePointChange(index, 'distanceFromPickup', e.target.value)}
+                    required
+                  />
+                  {dropPoints.length > 1 && (
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded font-bold"
+                      onClick={() => handleRemoveRider(index)}
+                      title="Remove Rider"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-6 font-semibold">{error}</div>}
 
-        <button type="submit" className="rounded-md bg-primary px-5 py-2 font-medium text-surface">
-          Calculate fair split
+        <button
+          type="submit"
+          className="w-full bg-orange-500 text-white font-extrabold text-lg py-4 px-4 rounded-lg hover:bg-orange-600 transition shadow-md"
+        >
+          Calculate Fair Split
         </button>
       </form>
 
-      {result ? (
-        <section className="space-y-3 rounded-xl border border-accent/40 p-6">
-          <h2 className="text-xl font-semibold">Fair share results</h2>
-          {result.perRider.map((item) => (
-            <div key={`${item.rider}-${item.dropPoint}`} className="rounded-md border border-dark/15 p-3 text-sm">
-              <p className="font-medium">{item.rider}</p>
-              <p>Drop: {item.dropPoint}</p>
-              <p>Distance: {item.distanceFromPickup}</p>
-              <p>Fair share: ₹{item.fairShare}</p>
-            </div>
-          ))}
-          <p className="font-medium">Total assigned: ₹{result.totalAssigned}</p>
-        </section>
-      ) : null}
+      {/* --- RESULTS DISPLAY --- */}
+      {results && (
+        <div className="mt-10 p-6 bg-green-50 border-2 border-green-200 rounded-xl">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-black text-green-800">Final Split Breakdown</h3>
+            <span className="bg-green-200 text-green-900 text-sm font-bold px-3 py-1 rounded-full">
+              Total: ₹{results.totalAssigned}
+            </span>
+          </div>
+          
+          <div className="space-y-3 mb-6">
+            {results.perRider.map((res, i) => (
+              <div key={i} className="flex justify-between items-center bg-white p-4 rounded shadow-sm border border-green-100">
+                <div>
+                  <p className="font-bold text-gray-800 text-lg">{res.rider}</p>
+                  <p className="text-sm text-gray-500">Drop: {res.dropPoint} • {res.distanceFromPickup} km</p>
+                </div>
+                <div className="text-2xl font-black text-green-600">
+                  ₹{res.fairShare}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-sm text-green-700 italic border-t border-green-200 pt-4">
+            * {results.note}
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default FareSplitPage;
