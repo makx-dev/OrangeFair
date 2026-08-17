@@ -5,12 +5,18 @@ import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import './index.css';
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '157483941118-c8odl1fvl66jusamojnv9p6t55ktjq7i.apps.googleusercontent.com';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   </StrictMode>
 );

@@ -2,6 +2,7 @@ import apiClient from './axios';
 
 export const registerUser = (payload) => apiClient.post('/auth/register', payload);
 export const loginUser = (payload) => apiClient.post('/auth/login', payload);
+export const googleAuth = (payload) => apiClient.post('/auth/google', payload);
 export const getPlate = (plateNumber) => apiClient.get(`/plates/${encodeURIComponent(plateNumber)}`);
 export const createRide = (payload) => apiClient.post('/rides', payload);
 export const splitFare = (payload) => apiClient.post('/rides/split', payload);
