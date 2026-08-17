@@ -3,6 +3,7 @@ const Comment = require('../models/Comment');
 const Ride = require('../models/Ride');
 const Report = require('../models/Report');
 const { calculatePlateTrust } = require('../utils/plateTrust');
+const { verifyVehicleRegistration } = require('../utils/vehicleVerificationService');
 
 exports.getPlateDetails = async (req, res) => {
   try {
@@ -28,6 +29,21 @@ exports.getPlateDetails = async (req, res) => {
     plate.trustScore = trustResult.trustScore;
     plate.trustTier = trustResult.trustTier;
     plate.explanation = trustResult.explanation;
+
+    // Check if verification is needed (missing or older than 24 hours)
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+    const needsVerification = !plate.lastVerifiedAt || (Date.now() - plate.lastVerifiedAt.getTime() > ONE_DAY);
+    
+    if (needsVerification) {
+      const verificationResult = await verifyVehicleRegistration(plate.plateNumber);
+      plate.verificationStatus = verificationResult.verified;
+      plate.verificationSource = verificationResult.source;
+      plate.lastVerifiedAt = verificationResult.lastVerifiedAt;
+      if (verificationResult.verified) {
+        plate.verifiedVehicleData = verificationResult.vehicle;
+      }
+    }
+
     await plate.save();
 
     const fairFareEstimate = {
@@ -38,10 +54,21 @@ exports.getPlateDetails = async (req, res) => {
     };
 
     return res.json({
-      plateNumber: plate.plateNumber,
-      trustScore: plate.trustScore,
-      trustTier: plate.trustTier,
-      explanation: plate.explanation,
+      vehicle: {
+        registrationNumber: plate.plateNumber,
+        ...(plate.verifiedVehicleData || {}),
+      },
+      verification: {
+        verified: plate.verificationStatus,
+        source: plate.verificationSource,
+        lastVerifiedAt: plate.lastVerifiedAt,
+      },
+      trust: {
+        score: plate.trustScore,
+        tier: plate.trustTier,
+        explanation: plate.explanation,
+        stats: trustResult.stats || { verifiedRideCount: 0, confirmedReportCount: 0, nearFarePercentage: 0 }
+      },
       recentComments,
       fairFareEstimate,
     });

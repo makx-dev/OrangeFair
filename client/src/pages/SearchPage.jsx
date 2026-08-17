@@ -8,8 +8,9 @@ export default function SearchPage() {
 
   const handleSearch = (event) => {
     event.preventDefault();
-    if (!plateNumber.trim()) return;
-    navigate(`/auto/${encodeURIComponent(plateNumber.trim().toUpperCase())}`);
+    const normalized = plateNumber.trim().replace(/\s+/g, '').toUpperCase();
+    if (!normalized) return;
+    navigate(`/auto/${encodeURIComponent(normalized)}`);
   };
 
   return (
@@ -18,9 +19,9 @@ export default function SearchPage() {
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 text-primary mb-6">
           <Search size={40} />
         </div>
-        <h1 className="text-4xl font-bold text-text-primary mb-4">Search Auto Registration</h1>
+        <h1 className="text-4xl font-bold text-text-primary mb-4">Verify an auto before you ride.</h1>
         <p className="text-lg text-text-secondary max-w-xl mx-auto">
-          Enter an auto-rickshaw registration number to view community trust ratings, fair fare estimates, and recent reports.
+          Enter an auto-rickshaw registration number to verify official vehicle details and check community trust.
         </p>
       </div>
 
@@ -48,30 +49,34 @@ export default function SearchPage() {
         </form>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="bg-surface border border-border rounded-xl p-6 text-center">
-          <div className="w-12 h-12 rounded-full bg-success/10 text-success flex items-center justify-center mx-auto mb-4">
-            <ShieldCheck size={24} />
-          </div>
-          <h3 className="font-semibold text-text-primary mb-2">Verify Trust</h3>
-          <p className="text-sm text-text-secondary">Check the auto's community trust score before you ride.</p>
-        </div>
-        
-        <div className="bg-surface border border-border rounded-xl p-6 text-center">
-          <div className="w-12 h-12 rounded-full bg-info/10 text-info flex items-center justify-center mx-auto mb-4">
-            <MessageSquare size={24} />
-          </div>
-          <h3 className="font-semibold text-text-primary mb-2">Read Reviews</h3>
-          <p className="text-sm text-text-secondary">See what other passengers have experienced.</p>
-        </div>
-        
-        <div className="bg-surface border border-border rounded-xl p-6 text-center">
-          <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle size={24} />
-          </div>
-          <h3 className="font-semibold text-text-primary mb-2">Check History</h3>
-          <p className="text-sm text-text-secondary">View past reports of overcharging or meter refusal.</p>
-        </div>
+      <div className="max-w-xl mx-auto bg-surface border border-border rounded-xl p-6 md:p-8">
+        <h3 className="text-xl font-bold text-text-primary mb-6 text-center">Why check an auto?</h3>
+        <ul className="space-y-4">
+          <li className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-success/10 text-success flex items-center justify-center shrink-0">
+              <ShieldCheck size={18} />
+            </div>
+            <span className="text-text-primary font-medium">Verify official vehicle information</span>
+          </li>
+          <li className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <ShieldCheck size={18} />
+            </div>
+            <span className="text-text-primary font-medium">See community trust status</span>
+          </li>
+          <li className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-info/10 text-info flex items-center justify-center shrink-0">
+              <MessageSquare size={18} />
+            </div>
+            <span className="text-text-primary font-medium">Review verified experiences</span>
+          </li>
+          <li className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-error/10 text-error flex items-center justify-center shrink-0">
+              <AlertTriangle size={18} />
+            </div>
+            <span className="text-text-primary font-medium">Check previous fare and report history</span>
+          </li>
+        </ul>
       </div>
     </div>
   );

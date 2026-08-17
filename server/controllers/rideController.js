@@ -34,73 +34,89 @@ exports.createRide = async (req, res) => {
 
 exports.splitRideFare = async (req, res) => {
   try {
-    const { totalFare, passengerCount, dropPoints } = req.body;
+    const { dropPoints } = req.body;
 
-    // 1. Input Validation
-    if (typeof totalFare !== 'number' || totalFare <= 0) {
-      return res.status(400).json({ message: 'totalFare must be a positive number.' });
+    // dropPoints should be an array ordered by drop sequence
+    // each item: { passengerCount: number, dropPoint: string, cumulativeDistance: number }
+
+    if (!Array.isArray(dropPoints) || dropPoints.length === 0) {
+      return res.status(400).json({ message: 'dropPoints array is required.' });
     }
 
-    if (!Number.isInteger(passengerCount) || passengerCount < 1) {
-      return res.status(400).json({ message: 'passengerCount must be an integer greater than 0.' });
-    }
-
-    if (!Array.isArray(dropPoints) || dropPoints.length !== passengerCount) {
-      return res.status(400).json({ message: 'dropPoints must be an array with one entry per passenger.' });
-    }
-
-    // 2. Normalize drop points
-    const normalizedPoints = dropPoints.map((point, index) => {
-      const distance = Number(point.distanceFromPickup);
-      return {
-        rider: point.rider || `Passenger ${index + 1}`,
-        dropPoint: point.dropPoint || point.label || `Drop ${index + 1}`,
-        distanceFromPickup: distance,
-      };
-    });
-
-    // 3. Validate distances
-    const invalidDistance = normalizedPoints.some((point) => !Number.isFinite(point.distanceFromPickup) || point.distanceFromPickup < 0);
-    if (invalidDistance) {
-      return res.status(400).json({ message: 'Each drop point must include distanceFromPickup >= 0.' });
-    }
-
-    const totalDistance = normalizedPoints.reduce((sum, point) => sum + point.distanceFromPickup, 0);
-
-    if (totalDistance === 0) {
-      return res.status(400).json({ message: 'Total distance must be greater than zero.' });
-    }
-
-    // 4. THE 20/80 SPLIT MATH
-    const baseFareTotal = totalFare * 0.20; // 20% shared equally
-    const proportionalFareTotal = totalFare * 0.80; // 80% based on distance
+    const totalPassengers = dropPoints.reduce((sum, p) => sum + (Number(p.passengerCount) || 1), 0);
     
-    const equalBaseShare = baseFareTotal / passengerCount;
+    // Sort just in case, but they should be in order of drop off
+    const sortedPoints = [...dropPoints].sort((a, b) => a.cumulativeDistance - b.cumulativeDistance);
 
-    const perRider = normalizedPoints.map((point) => {
-      const distanceRatio = point.distanceFromPickup / totalDistance;
-      const proportionalShare = proportionalFareTotal * distanceRatio;
+    const invalidDistance = sortedPoints.some((point) => !Number.isFinite(point.cumulativeDistance) || point.cumulativeDistance < 0);
+    if (invalidDistance) {
+      return res.status(400).json({ message: 'Each drop point must include a valid cumulativeDistance >= 0.' });
+    }
+
+    // Tariff rules
+    const minimumFare = 26;
+    const ratePerKm = 17.14;
+    const nightSurcharge = 0.25;
+
+    // Helper to calculate meter fare at a specific distance
+    const calculateMeterFareAtDistance = (distanceKm) => {
+      if (distanceKm <= 0) return 0;
+      let baseFare = minimumFare;
+      if (distanceKm > 1.5) {
+        baseFare += (distanceKm - 1.5) * ratePerKm;
+      }
+      return baseFare; // We will handle rounding later
+    };
+
+    // Calculate incremental segment fares
+    let previousDistance = 0;
+    let previousMeterFare = 0;
+    let activePassengers = totalPassengers;
+    let accumulatedSharePerPerson = 0;
+
+    for (let i = 0; i < sortedPoints.length; i++) {
+      const currentDistance = sortedPoints[i].cumulativeDistance;
+      const currentMeterFare = calculateMeterFareAtDistance(currentDistance);
       
-      const fairShare = equalBaseShare + proportionalShare;
+      const segmentFare = currentMeterFare - previousMeterFare;
       
+      // Share per person for this segment
+      const eachPassengerShareForSegment = segmentFare / activePassengers;
+      accumulatedSharePerPerson += eachPassengerShareForSegment;
+
+      const pCount = Number(sortedPoints[i].passengerCount) || 1;
+      // Subtract these passengers so they don't pay for the next segment
+      activePassengers -= pCount;
+
+      sortedPoints[i]._fairSharePerPerson = accumulatedSharePerPerson;
+      sortedPoints[i]._groupFairShare = accumulatedSharePerPerson * pCount;
+
+      previousDistance = currentDistance;
+      previousMeterFare = currentMeterFare;
+    }
+
+    const totalDistance = sortedPoints[sortedPoints.length - 1].cumulativeDistance;
+    const totalMeterFare = Math.round(calculateMeterFareAtDistance(totalDistance));
+
+    const perDestination = sortedPoints.map((point) => {
       return {
-        rider: point.rider,
         dropPoint: point.dropPoint,
-        distanceFromPickup: point.distanceFromPickup,
-        fairShare: Number(fairShare.toFixed(2)),
+        passengerCount: Number(point.passengerCount) || 1,
+        distanceFromPickup: point.cumulativeDistance,
+        fairSharePerPerson: Number(point._fairSharePerPerson.toFixed(2)),
+        groupFairShare: Number(point._groupFairShare.toFixed(2)),
       };
     });
 
-    const totalAssigned = Number(perRider.reduce((sum, point) => sum + point.fairShare, 0).toFixed(2));
+    const sumOfShares = Number(perDestination.reduce((sum, dest) => sum + dest.groupFairShare, 0).toFixed(2));
 
-    // 5. Return Response
     return res.json({
-      totalFare,
-      passengerCount,
+      totalPassengers,
       totalDistance: Number(totalDistance.toFixed(2)),
-      perRider,
-      totalAssigned,
-      note: 'Proportional split: 20% equal base + 80% distance-to-drop allocation.',
+      perDestination,
+      totalAssigned: sumOfShares,
+      officialFare: totalMeterFare,
+      note: 'Fare split calculated based on incremental route distance and passenger occupancy for each segment.',
     });
 
   } catch (error) {

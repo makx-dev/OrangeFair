@@ -16,6 +16,10 @@ const plateSchema = new mongoose.Schema({
     default: 'Watch',
   },
   explanation: { type: String, default: 'Base trust score starts at 50.' },
+  verificationStatus: { type: Boolean, default: false },
+  verificationSource: { type: String, default: 'Unverified' },
+  lastVerifiedAt: { type: Date },
+  verifiedVehicleData: { type: mongoose.Schema.Types.Mixed },
   createdAt: { type: Date, default: Date.now },
 });
 
